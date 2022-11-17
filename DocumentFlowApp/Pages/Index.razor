@@ -1,0 +1,23 @@
+﻿@page "/"
+@inject NavigationManager navigateManager
+
+<h1 align="center">Welcome to Document Flow App</h1>
+
+<div class="navigateButton">
+    <button id="navButton" onclick="@OnClickRegister">Регистрация</button>
+    <br>
+    <button id="navButton" onclick="@OnClickAuth">Авторизация</button>
+</div>
+
+@code
+{
+    private void OnClickRegister() 
+    {
+        navigateManager.NavigateTo("/registrationPage");
+    }
+
+    private void OnClickAuth()
+    {
+        navigateManager.NavigateTo("/authPage");
+    }
+}

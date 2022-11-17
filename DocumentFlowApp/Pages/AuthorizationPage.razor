@@ -1,0 +1,71 @@
+﻿@page "/authPage"
+
+<h1 align="center">Авторизация</h1>
+
+<link rel="stylesheet" href="~/css/site.css">
+@inject Services.UserService userService
+@inject NavigationManager navManager
+
+<div class="registration">
+    <div id="regInput">
+        <label>Введите логин: </label>
+        <input @bind-value="user.Login"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите пароль: </label>
+        <input @bind-value="user.Password"></input>
+    </div>
+
+    <button id="buttonAuth" onclick="@Authorize">Войти</button>
+</div>
+
+<label id="errorLabel">@errorMessage</label>
+
+@code {
+    private UserData user = new UserData();
+    private bool isError;
+    private string errorMessage = "";
+    public string currentUser;
+
+    private void Authorize()
+    {
+        isError = false;
+        if (user.Login != null && user.Password != null)
+        {
+            UserData userDb = userService.FindUserByLogin(user);
+
+            if (user.Login == userDb.Login && user.Password == userDb.Password && userDb != null)
+            {
+                currentUser = userDb.Login;
+                userService.currentUser = userDb;
+                switch (userDb.Role)
+                {
+                    case "Заказчик":
+                        navManager.NavigateTo($"/customerCabinet/{currentUser}");
+                        break;
+                    case "Проектировщик":
+                        navManager.NavigateTo($"/designerCabinet/{currentUser}");
+                        break;
+                    case "Застройщик":
+                        navManager.NavigateTo($"/builderCabinet/{currentUser}");
+                        break;
+                }
+            }
+
+            else isError = true;
+        }
+
+        else isError = true;
+        ShowError();
+    }
+
+    private void ShowError()
+    {
+        if (isError)
+        {
+            errorMessage = "Неверный логин или пароль!";
+        }
+        else errorMessage = "";
+    }
+}
+

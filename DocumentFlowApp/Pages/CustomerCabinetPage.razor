@@ -1,0 +1,147 @@
+﻿@using Services;
+@page "/customerCabinet/{currentUser}"
+@inject UserService userService
+@inject ProjectService projectService
+<link rel="stylesheet" href="~/css/site.css">
+
+<h1 align="center">Личный кабинет</h1>
+<h3>Роль: @user.Role</h3>
+
+@if (isEdit == false)
+{
+    <div class="cabinet">
+        <div id="cabData">
+            <label>Логин: </label>
+            <input disabled @bind-value="user.Login"></input>
+        </div>
+        <div id="cabData">
+            <label>Пароль: </label>
+            <input disabled @bind-value="user.Password"></input>
+        </div>
+        <div id="cabData">
+            <label>Имя: </label>
+            <input disabled @bind-value="user.Name"></input>
+        </div>
+        <div id="cabData">
+            <label>Фамилию: </label>
+            <input disabled @bind-value="user.Surname"></input>
+        </div>
+        <div id="cabData">
+            <label>Email: </label>
+            <input disabled @bind-value="user.Email"></input>
+        </div>
+        <div id="cabData">
+            <label>Телефон: </label>
+            <input disabled @bind-value="user.Phone"></input>
+        </div>
+        <div id="cabData">
+            <label>Отрасль: </label>
+            <input disabled @bind-value="user.Department"></input>
+        </div>
+        <button id="changeButton" onclick="@Edit">Редактировать</button>
+    </div>
+}
+
+else
+{
+    <div class="cabinet">
+        <div id="cabData">
+            <label>Логин: </label>
+            <input @bind-value="user.Login"></input>
+        </div>
+        <div id="cabData">
+            <label>Пароль: </label>
+            <input @bind-value="user.Password"></input>
+        </div>
+        <div id="cabData">
+            <label>Имя: </label>
+            <input @bind-value="user.Name"></input>
+        </div>
+        <div id="cabData">
+            <label>Фамилию: </label>
+            <input @bind-value="user.Surname"></input>
+        </div>
+        <div id="cabData">
+            <label>Email: </label>
+            <input @bind-value="user.Email"></input>
+        </div>
+        <div id="cabData">
+            <label>Телефон: </label>
+            <input @bind-value="user.Phone"></input>
+        </div>
+        <select @bind="user.Department">
+            <option>Выберите отрасль...</option>
+            <option value="Водоснабжение">Водоснабжение</option>
+            <option value="Газификация">Газификация</option>
+        </select>
+
+        <button id="saveButton" onclick="@Save">Сохранить</button>
+    </div>
+}
+
+<div class="project">
+    <div id="select">
+        <select @onchange=DesignerChange style="width: 60%">
+            <option disabled>Выберите организацию проектировщика...</option>
+            @foreach (var name in userService.GetNamesOfDesignOrgs())
+            {
+                <option value=@name>@name</option>
+            }
+        </select>
+    </div>
+    <div id="select">
+        <select @onchange=BuilderChange style="width: 60%">
+            <option disabled>Выберите застройщика...</option>
+            @foreach (var name in userService.GetNamesOfBuilders())
+            {
+                <option value=@name>@name</option>
+            }
+        </select>
+    </div>
+
+    <button onclick="@CreateProject">Создать проект</button>
+</div>
+
+@code {
+    [Parameter] public string currentUser { get; set; }
+    UserData user = new UserData();
+    private bool isEdit = false;
+    UserData designer;
+    UserData builder;
+
+    protected override void OnParametersSet()
+    {
+        user = userService.FindUserByLogin(currentUser);
+    }
+
+    private void Edit()
+    {
+        isEdit = true;
+    }
+
+    private void Save()
+    {
+        userService.ReplaceUser(user);
+        isEdit = false;
+    }
+
+    private void CreateProject()
+    {
+        if (designer != null && builder != null && user != null) 
+        {
+            Project project = new Project(user, designer, builder);
+            projectService.AddProjectToDataBase(project);
+            projectService.projects.Add(project);
+        }
+    }
+
+    private void DesignerChange(ChangeEventArgs e)
+    {
+        designer = userService.FindUserByNameOrgs(e.Value.ToString());
+    }
+
+    private void BuilderChange(ChangeEventArgs e)
+    {
+        builder = userService.FindUserByName(e.Value.ToString());
+    }
+}

@@ -1,0 +1,141 @@
+﻿@using Services;
+@page "/builderCabinet/{currentUser}"
+@inject Services.UserService userService
+@inject Services.ProjectService projectService
+<link rel="stylesheet" href="~/css/site.css">
+
+<h1 align="center">Личный кабинет</h1>
+<h3>Роль: @user.Role</h3>
+
+@if (isEdit == false)
+{
+    <div class="cabinet">
+        <div id="cabData">
+            <label>Логин: </label>
+            <input disabled @bind-value="user.Login"></input>
+        </div>
+        <div id="cabData">
+            <label>Пароль: </label>
+            <input disabled @bind-value="user.Password"></input>
+        </div>
+        <div id="cabData">
+            <label>Имя: </label>
+            <input disabled @bind-value="user.Name"></input>
+        </div>
+        <div id="cabData">
+            <label>Фамилию: </label>
+            <input disabled @bind-value="user.Surname"></input>
+        </div>
+        <div id="cabData">
+            <label>Email: </label>
+            <input disabled @bind-value="user.Email"></input>
+        </div>
+        <div id="cabData">
+            <label>Телефон: </label>
+            <input disabled @bind-value="user.Phone"></input>
+        </div>
+        <div id="cabData">
+            <label>ОГРН: </label>
+            <input disabled @bind-value="user.OGRN"></input>
+        </div>
+        <div id="cabData">
+            <label>ИНН: </label>
+            <input disabled @bind-value="user.INN"></input>
+        </div>
+        <div id="cabData">
+            <label>КПП: </label>
+            <input disabled @bind-value="user.KPP"></input>
+        </div>
+        <div id="cabData">
+            <label>Адрес: </label>
+            <input disabled @bind-value="user.Address"></input>
+        </div>
+        <div id="cabData">
+            <label>Руководитель ИКРТ: </label>
+            <input disabled @bind-value="user.HeadOfTheExecutiveCommitteeRT"></input>
+        </div>
+        <button id="changeButton" onclick="@Edit">Редактировать</button>
+    </div>
+}
+
+else
+{
+    <div class="cabinet">
+        <div id="cabData">
+            <label>Логин: </label>
+            <input @bind-value="user.Login"></input>
+        </div>
+        <div id="cabData">
+            <label>Пароль: </label>
+            <input @bind-value="user.Password"></input>
+        </div>
+        <div id="cabData">
+            <label>Имя: </label>
+            <input @bind-value="user.Name"></input>
+        </div>
+        <div id="cabData">
+            <label>Фамилию: </label>
+            <input @bind-value="user.Surname"></input>
+        </div>
+        <div id="cabData">
+            <label>Email: </label>
+            <input @bind-value="user.Email"></input>
+        </div>
+        <div id="cabData">
+            <label>Телефон: </label>
+            <input @bind-value="user.Phone"></input>
+        </div>
+        <div id="cabData">
+            <label>ОГРН: </label>
+            <input @bind-value="user.OGRN"></input>
+        </div>
+        <div id="cabData">
+            <label>ИНН: </label>
+            <input @bind-value="user.INN"></input>
+        </div>
+        <div id="cabData">
+            <label>КПП: </label>
+            <input @bind-value="user.KPP"></input>
+        </div>
+        <div id="cabData">
+            <label>Адрес: </label>
+            <input @bind-value="user.Address"></input>
+        </div>
+        <div id="cabData">
+            <label>Руководитель ИКРТ: </label>
+            <input @bind-value="user.HeadOfTheExecutiveCommitteeRT"></input>
+        </div>
+        <button id="saveButton" onclick="@Save">Сохранить</button>
+    </div>
+}
+
+<select id="selectProject">
+    <option>Выберите проект...</option>
+    @foreach (var project in projectService.GetAllProject())
+    {
+        <option>@project.Number</option>
+    }
+</select>
+
+@code {
+    [Parameter] public string currentUser { get; set; }
+    UserData user = new UserData();
+    private bool isEdit = false;
+
+
+    protected override void OnParametersSet()
+    {
+        user = userService.FindUserByLogin(currentUser);
+    }
+
+    private void Edit()
+    {
+        isEdit = true;
+    }
+
+    private void Save()
+    {
+        userService.ReplaceUser(user);
+        isEdit = false;
+    }
+}

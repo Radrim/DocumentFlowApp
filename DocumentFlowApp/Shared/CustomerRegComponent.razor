@@ -1,0 +1,89 @@
+﻿<link rel="stylesheet" href="~/css/site.css">
+@inject Services.UserService userService
+
+<div class="registration" >
+    <div id="regInput">
+        <label>Введите логин: </label>
+        <input @bind-value="user.Login"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите пароль: </label>
+        <input @bind-value="user.Password"></input>
+    </div>
+    <div id="regInput">
+        <label>Повторите пароль: </label>
+        <input @bind-value="repeatPassword"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите имя: </label>
+        <input @bind-value="user.Name"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите фамилию: </label>
+        <input @bind-value="user.Surname"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите email: </label>
+        <input @bind-value="user.Email"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите телефон: </label>
+        <input @bind-value="user.Phone"></input>
+    </div>
+    <select @bind="user.Department">
+        <option>Выберите отрасль...</option>
+        <option value="Водоснабжение">Водоснабжение</option>
+        <option value="Газификация">Газификация</option>
+    </select>
+    <br>
+    <button id="buttonReg" onclick="@AddToDatabase">Зарегистрироваться</button>
+</div>
+
+<label id="errorLabel">@errorMessage</label>
+
+@code {
+    private UserData user = new UserData();
+    private string repeatPassword;
+    private string error;
+    private string errorMessage = "";
+
+    private void AddToDatabase()
+    {
+        error = "0";
+
+        if (!userService.CheckUserLogin(user))
+        {
+            if (user.Login != null && user.Password != null && user.Password == repeatPassword)
+            {
+                MongoDbUserModel userDb = new MongoDbUserModel(user.Login, user.Password, user.Name, user.Surname, user.Email, user.Phone, "Заказчик", user.Department);
+                MongoDb.AddUserToDataBase(userDb);
+                userService.ClearUser(user);
+                repeatPassword = null;
+            }
+
+            else
+            {
+                error = "2";
+            }
+        }
+
+        else error = "1";
+        ShowError();
+    }
+
+    private void ShowError() 
+    {
+        @switch (error)
+        {
+            case "1":
+                errorMessage = "Пользователь с таким логином уже существует!*";
+                break;
+            case "2":
+                errorMessage = "Некорректный ввод. Проверьте правильность введенных данных*";
+                break;
+            default:
+                errorMessage = "";
+                break;
+        }
+    }
+}

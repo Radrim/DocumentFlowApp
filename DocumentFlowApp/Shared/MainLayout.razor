@@ -1,0 +1,45 @@
+﻿@using Services
+<link rel="stylesheet" href="~/css/site.css">
+@inherits LayoutComponentBase
+@inject NavigationManager navManager
+@inject UserService userService
+
+<PageTitle>DocumentFlowApp</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+
+        <div class="top-row px-4">
+            @if (userService.currentUser != null)
+            {
+                <a id="hrefCabinet" @onclick="@Navigate" target="_blank">Личный кабинет</a>
+            }
+        </div>
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code
+{
+    private void Navigate()
+    {
+        switch (userService.currentUser.Role)
+        {
+            case "Заказчик":
+                navManager.NavigateTo($"/customerCabinet/{userService.currentUser.Login}");
+                break;
+            case "Проектировщик":
+                navManager.NavigateTo($"/designerCabinet/{userService.currentUser.Login}");
+                break;
+            case "Застройщик":
+                navManager.NavigateTo($"/builderCabinet/{userService.currentUser.Login}");
+                break;
+        }
+    }
+}

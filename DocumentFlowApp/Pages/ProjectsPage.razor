@@ -1,0 +1,39 @@
+﻿@using Services
+@page "/projects/"
+@inject ProjectService projectService
+@inject UserService userService
+<h1 align="center">Проекты</h1>
+
+@if (userService.currentUser != null) 
+{
+    projectService.projects = projectService.GetAllProject();
+}
+    
+@if (projectService.projects != null)
+{
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Заказчик</th>
+                    <th>Проектировщик</th>
+                    <th>Застройщик</th>
+                    <th>Количество документов</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var project in projectService.projects)
+                {
+                    <tr>
+                        <td>@project.RespCustomer.Name</td>
+                        <td>@project.RespBuilder.Name</td>
+                        <td>@project.RespDesigner.NameDesignOrganization</td>
+                        <td>@project.Documents.Count</td>
+                    </tr>
+                }
+            </tbody>
+    </table>
+</div>}
+
+@code {
+}

@@ -1,0 +1,114 @@
+﻿<link rel="stylesheet" href="~/css/site.css">
+@inject Services.UserService userService
+
+<div class="registration" >
+    <div id="regInput">
+        <label>Введите логин: </label>
+        <input @bind-value="user.Login"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите пароль: </label>
+        <input @bind-value="user.Password"></input>
+    </div>
+    <div id="regInput">
+        <label>Повторите пароль: </label>
+        <input @bind-value="repeatPassword"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите имя: </label>
+        <input @bind-value="user.Name"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите фамилию: </label>
+        <input @bind-value="user.Surname"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите email: </label>
+        <input @bind-value="user.Email"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите телефон: </label>
+        <input @bind-value="user.Phone"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите ОГРН: </label>
+        <input @bind-value="user.OGRN"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите ИНН: </label>
+        <input @bind-value="user.INN"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите КПП: </label>
+    <input @bind-value="user.KPP"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите Адрес: </label>
+        <input @bind-value="user.Address"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите ФИО директора: </label>
+        <input @bind-value="user.Director"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите ФИО ГИП: </label>
+        <input @bind-value="user.ProjectLeadEngineer"></input>
+    </div>
+    <div id="regInput">
+        <label>Введите название организации: </label>
+    <input @bind-value="user.NameDesignOrganization"></input>
+    </div>
+    <button id="buttonReg" onclick="@AddToDatabase">Зарегистрироваться</button>
+</div>
+
+<label id="errorLabel">@errorMessage</label>
+
+@code {
+    private UserData user = new UserData();
+    private string repeatPassword;
+    private string error;
+    private string errorMessage = "";
+
+    private void AddToDatabase()
+    {
+        error = "0";
+
+        if (!userService.CheckUserLogin(user))
+        {
+            if (user.Login != null && user.Password != null && user.Password == repeatPassword)
+            {
+                MongoDbUserModel userDb = new MongoDbUserModel(user.Login, user.Password, user.Name, user.Surname, user.Email,
+                                                               user.Phone, "Проектировщик", user.Department, user.OGRN, user.INN,
+                                                               user.KPP, user.Address, user.Director, user.ProjectLeadEngineer, 
+                                                               user.NameDesignOrganization);
+                MongoDb.AddUserToDataBase(userDb);
+                userService.ClearUser(user);
+                repeatPassword = null;
+            }
+
+            else
+            {
+                error = "2";
+            }
+        }
+
+        else error = "1";
+        ShowError();
+    }
+
+    private void ShowError()
+    {
+        @switch (error)
+        {
+            case "1":
+                errorMessage = "Пользователь с таким логином уже существует!*";
+                break;
+            case "2":
+                errorMessage = "Некорректный ввод. Проверьте правильность введенных данных*";
+                break;
+            default:
+                errorMessage = "";
+                break;
+        }
+    }
+}

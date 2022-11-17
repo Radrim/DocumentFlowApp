@@ -1,0 +1,26 @@
+﻿@page "/registrationPage"
+<h1 align="center">Регистрация</h1>
+
+<select id="roleSelect" @bind="selectedRole">   
+    <option selected disabled>Выберите должность...</option>
+    <option value="customer">Заказчик</option>    
+    <option value="designer">Проектировщик</option>    
+    <option value="builder">Застройщик</option>    
+</select>
+
+@switch (selectedRole)
+{
+    case "customer":
+        <CustomerRegComponent />
+        break;
+    case "designer":
+        <DesignerRegComponent />
+        break;
+    case "builder":
+        <BuilderRegComponent />
+        break;
+}
+
+@code {
+    private string selectedRole;
+}
